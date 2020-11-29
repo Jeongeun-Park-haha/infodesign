@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset= "utf-8">
+	<title>Test page</title>
+	<style type="text/css">
+		body {
+			background: #aaa;
+		]
+	</style>
+</head>
+
+<body>
+	<!-- <svg id='linechart'></svg> -->
+	<!-- <svg id="chart" width="400" height="300"></svg> -->
+	<div id="chart"></div>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+<!--     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script> -->
+	<script type="text/javascript">
+
+		// d3.csv("./homeprice_sigun.csv", function(data) {
+   		 // console.log(data);
+		// });
+	// 800 * 600인 svg 생성	
+	var width = 800,
+	    height = 600;
+ 
+	var svg = d3.select("#chart").append("svg")
+	    .attr("width", width)
+	    .attr("height", height);
+
+	// map은 지도 레이어, places는 맛집 레이어
+	var map = svg.append("g").attr("id", "map"),
+	    places = svg.append("g").attr("id", "places");
+
+    var projection = d3.geo.mercator()
+    .center([126.9895, 37.5651])
+    .scale(80000)
+    .translate([width/2, height/2]);
+
+	var path = d3.geo.path().projection(projection);
+	 
+	// 파일 불러오기  
+	d3.json("./seoulbound_gu.json", function(error, data) {
+	  var features = topojson.feature(data, data.objects.seoulbound_gu).features;
+
+	  // map 레이어에 각 지역구에 대한 path와 지역명을 표시한 text 요소 생성
+	  map.selectAll("path")
+	      .data(features)
+	    .enter().append("path")
+	      .attr("class", function(d) { console.log(); return "municipality c" + d.properties.code })
+	      .attr("d", path);
+	 
+	  map.selectAll("text")
+	      .data(features)
+	    .enter().append("text")
+	      .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+	      .attr("dy", ".35em")
+	      .attr("class", "municipality-label")
+	      .text(function(d) { return d.properties.name; })
+	});
+
+	</script>
+
+</body>
+
+</html>
